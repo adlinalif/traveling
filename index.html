@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>London & Oeschinensee Express • 5D4N Travel Guide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-surface: #1e293b;
+            --bg-card: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-cyan: #38bdf8;
+            --accent-emerald: #34d399;
+            --accent-amber: #fbbf24;
+            --border-color: #475569;
+            --radius-md: 12px;
+            --radius-lg: 18px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 80px;
+        }
+
+        /* Header / Hero */
+        header {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.6) 0%, rgba(15, 23, 42, 1) 100%),
+                        url('https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
+            padding: 48px 20px 24px 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.hero-sub {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            background: var(--bg-surface);
+            padding: 6px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            margin-bottom: 24px;
+            position: sticky;
+            top: 12px;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+            gap: 4px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 90px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: var(--accent-cyan);
+            color: var(--bg-primary);
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.25);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.35s ease forwards;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Interactive Map Container */
+        #map {
+            height: 360px;
+            width: 100%;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            margin-bottom: 24px;
+            z-index: 1;
+        }
+
+        /* Cards & Buttons */
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .card-tag {
+            background: rgba(52, 211, 153, 0.15);
+            color: var(--accent-emerald);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .card-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--accent-cyan);
+            color: var(--bg-primary);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+        /* Timeline & Packing */
+        .timeline { position: relative; padding-left: 20px; }
+        .timeline::before {
+            content: ''; position: absolute; left: 0; top: 10px; bottom: 10px; width: 2px; background: var(--border-color);
+        }
+        .timeline-item { position: relative; margin-bottom: 24px; }
+        .timeline-item::before {
+            content: ''; position: absolute; left: -25px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-cyan); border: 3px solid var(--bg-primary);
+        }
+        .day-badge { color: var(--accent-amber); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+
+        .packing-list { list-style: none; }
+        .packing-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(71, 85, 105, 0.4); font-size: 0.9rem; }
+        .packing-item input[type="checkbox"] { accent-color: var(--accent-cyan); width: 18px; height: 18px; }
+
+        footer { text-align: center; padding: 24px 20px; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border-color); margin-top: 40px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <span class="badge">5D4N Express Travel Guide</span>
+        <h1>KL → London → Oeschinensee</h1>
+        <p class="hero-sub">August 2027 Budget Itinerary, Live Map, Flight & Hotel Direct Portals</p>
+    </header>
+
+    <div class="container">
+        <!-- Navigation Tabs -->
+        <nav class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('map-tab')">🗺️ Map</button>
+            <button class="tab-btn" onclick="switchTab('itinerary-tab')">📅 Itinerary</button>
+            <button class="tab-btn" onclick="switchTab('flights-tab')">✈️ Flights</button>
+            <button class="tab-btn" onclick="switchTab('hotels-tab')">🏨 Hotels</button>
+            <button class="tab-btn" onclick="switchTab('packing-tab')">🎒 Packing</button>
+        </nav>
+
+        <!-- MAP TAB -->
+        <div id="map-tab" class="tab-content active">
+            <div id="map"></div>
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Interactive Route Overview</span>
+                    <span class="card-tag">3 Countries</span>
+                </div>
+                <p class="card-desc">Click on any marker on the map to view destination highlights, airport transfers, or mountain transit points.</p>
+            </div>
+        </div>
+
+        <!-- ITINERARY TAB -->
+        <div id="itinerary-tab" class="tab-content">
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="day-badge">Day 1 • London, UK</div>
+                    <div class="card">
+                        <div class="card-title">Arrival & Historic Landmarks Tour</div>
+                        <p class="card-desc">Touch down at Gatwick/Heathrow. Walk Big Ben, Westminster Abbey, Buckingham Palace, and St. James's Park. Sunset view at Southbank.</p>
+                        <a href="https://www.google.com/maps/search/Big+Ben+London" target="_blank" class="btn btn-outline">📍 View Big Ben Map</a>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="day-badge">Day 2 • London, UK</div>
+                    <div class="card">
+                        <div class="card-title">Free Museums & West End Vibes</div>
+                        <p class="card-desc">Explore world treasures at the British Museum. Walk Covent Garden, Soho, and Oxford Street. Evening lights at Piccadilly Circus.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="day-badge">Day 3 • Switzerland</div>
+                    <div class="card">
+                        <div class="card-title">Fly to Zurich & Alpine Train to Kandersteg</div>
+                        <p class="card-desc">Early easyJet flight to Zurich (ZRH). Board scenic SBB train to Kandersteg via Spiez (~2.5h).</p>
+                        <a href="https://www.sbb.ch/en" target="_blank" class="btn btn-primary">🚆 Book SBB Train</a>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="day-badge">Day 4 • Oeschinensee, Switzerland</div>
+                    <div class="card">
+                        <div class="card-title">Oeschinensee Lake, Hike & Alpine Coaster</div>
+                        <p class="card-desc">Ride Kandersteg Gondola to Oeschinensee. Hike the Panorama Trail, ride the Rodelbahn Alpine Coaster, or rent a rowboat.</p>
+                        <a href="https://www.oeschinensee.ch/en/" target="_blank" class="btn btn-primary">🚠 Cable Car Pass</a>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="day-badge">Day 5 • Departure</div>
+                    <div class="card">
+                        <div class="card-title">Lake Zurich Promenade & Return Flight</div>
+                        <p class="card-desc">Explore Zurich Old Town and lake promenade before departure flight back to Kuala Lumpur.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FLIGHTS TAB -->
+        <div id="flights-tab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Leg 1: KUL → London</span>
+                    <span class="card-tag">~MYR 885</span>
+                </div>
+                <p class="card-desc">1-stop budget flights via Muscat or Abu Dhabi (Oman Air / Etihad).</p>
+                <a href="https://www.google.com/travel/flights?q=flights+from+KUL+to+LON" target="_blank" class="btn btn-primary">✈️ Google Flights Search</a>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Leg 2: London → Zurich</span>
+                    <span class="card-tag">~MYR 167</span>
+                </div>
+                <p class="card-desc">Direct hop on easyJet from Gatwick (LGW) to Zurich (ZRH).</p>
+                <a href="https://www.easyjet.com/" target="_blank" class="btn btn-primary">✈️ easyJet Official</a>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Leg 3: Zurich → KUL</span>
+                    <span class="card-tag">~MYR 1,695</span>
+                </div>
+                <p class="card-desc">Direct return saves ~MYR 535 vs doubling back to London.</p>
+                <a href="https://www.etihad.com/" target="_blank" class="btn btn-primary">✈️ Etihad Airways</a>
+            </div>
+        </div>
+
+        <!-- HOTELS TAB -->
+        <div id="hotels-tab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Wombat's City Hostel London</span>
+                    <span class="card-tag">~MYR 200 / night</span>
+                </div>
+                <p class="card-desc">Modern pod dorms with privacy curtains and guest kitchens near Tower Bridge.</p>
+                <a href="https://www.hostelworld.com/pwa/hosteldetails.php/Wombat-s-City-Hostel-London/London/88047" target="_blank" class="btn btn-primary">🏨 Hostelworld Direct</a>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Kandersteg Int. Scout Centre (Switzerland)</span>
+                    <span class="card-tag">~MYR 190 / night</span>
+                </div>
+                <p class="card-desc">Clean alpine chalet lodge open to all travelers right in Kandersteg village.</p>
+                <a href="https://www.kisc.ch/" target="_blank" class="btn btn-primary">🏔️ KISC Swiss Lodge</a>
+            </div>
+        </div>
+
+        <!-- PACKING TAB -->
+        <div id="packing-tab" class="tab-content">
+            <div class="card">
+                <div class="card-title" style="margin-bottom:12px;">Interactive Gear Checklist</div>
+                <ul class="packing-list">
+                    <li class="packing-item"><input type="checkbox"> 🛂 Passport & UK ETA / Schengen Visa</li>
+                    <li class="packing-item"><input type="checkbox"> 🥾 Waterproof Hiking Shoes</li>
+                    <li class="packing-item"><input type="checkbox"> 🧥 Windproof & Waterproof Rain Jacket</li>
+                    <li class="packing-item"><input type="checkbox"> 🔌 Type G Adapter (UK) & Type J/C Adapter (Swiss)</li>
+                    <li class="packing-item"><input type="checkbox"> 💳 Multi-currency Card (Wise / BigPay)</li>
+                    <li class="packing-item"><input type="checkbox"> 🔋 10,000+ mAh Powerbank</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>KL → London → Oeschinensee • 2027 Express Travel Web App</p>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+            if(tabId === 'map-tab') setTimeout(() => map.invalidateSize(), 200);
+        }
+
+        const map = L.map('map').setView([51.5074, -0.1278], 4);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
+
+        const locs = [
+            { name: "Kuala Lumpur (KUL)", lat: 2.7456, lng: 101.7072, desc: "Origin Airport" },
+            { name: "London, UK", lat: 51.5074, lng: -0.1278, desc: "Big Ben & West End" },
+            { name: "Zurich, Switzerland", lat: 47.3769, lng: 8.5417, desc: "Airport & Promenade" },
+            { name: "Oeschinensee / Kandersteg", lat: 46.4982, lng: 7.7282, desc: "Alpine Lake & Coaster" }
+        ];
+
+        locs.forEach(loc => {
+            L.marker([loc.lat, loc.lng]).addTo(map).bindPopup(`<b>${loc.name}</b><br>${loc.desc}`);
+        });
+
+        L.polyline([[2.7456, 101.7072], [51.5074, -0.1278], [47.3769, 8.5417], [46.4982, 7.7282]], {color: '#38bdf8', weight: 2, dashArray: '5, 8'}).addTo(map);
+    </script>
+</body>
+</html>
