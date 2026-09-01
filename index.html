@@ -405,6 +405,13 @@
         });
 
         L.polyline([[2.7456, 101.7072], [51.5074, -0.1278], [47.3769, 8.5417], [46.4982, 7.7282]], {color: '#38bdf8', weight: 2, dashArray: '5, 8'}).addTo(map);
+        // Fetch flight info automatically
+fetch('https://api.aviationstack.com/v1/flights?access_key=a702a7d4d47b7c9890d8eb5aa2e0519b&dep_iata=ZRH')
+  .then(response => response.json())
+  .then(data => {
+    console.log("Live Flight Data:", data);
+  });
+
     </script>
 </body>
 </html>
